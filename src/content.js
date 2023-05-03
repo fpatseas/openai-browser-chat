@@ -1,90 +1,95 @@
-function attachEventListeners(input) {
-    input.addEventListener('keyup', debounce(handleKeyUp, 400));
-    input.addEventListener('change', handleKeyUp);
-    input.addEventListener('paste', handleKeyUp);
-}
+(function () {
 
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+    const openaiEndpoint = 'https://api.openai.com/v1/edits';
+
+    const callOpenaiApi = async (prompt, apiKey) => {
+        try {
+            const response = await fetch(openaiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'text-davinci-edit-001',
+                    input: prompt,
+                    n: 1,
+                    temperature: 0.8,
+                    top_p: 1,
+                    instruction: 'Fix the grammar and spelling, and if it\'s not English, please translate it'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.choices && data.choices.length > 0) {
+                return data.choices[0].text;
+            } else {
+                throw new Error('No response from the API');
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
-}
 
-function handleKeyUp(event) {
-    const input = event.target;
-    chrome.storage.sync.get('apiKey', ({ apiKey }) => {
-        if (!apiKey) return;
-        // Call OpenAI API for English correction here and update the input's value
-    });
-}
+    const addOpenAIInputClass = () => {
+        const inputs = document.querySelectorAll('input[type="text"], textarea');
+        inputs.forEach((input) => {
+            input.classList.add('openai-input');
 
-document.querySelectorAll('input, textarea').forEach(attachEventListeners);
+            const container = document.createElement('div');
+            container.classList.add('openai-input-container');
+            input.parentNode.insertBefore(container, input);
+            container.appendChild(input);
 
+            const button = document.createElement('button');
+            button.classList.add('openai-input-btn');
+            button.innerHTML = `<span class="icon">💬</span>
+                <div class="loading-dots" style="display: none;">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>`;
+            input.parentNode.insertBefore(button, input.nextSibling);
+            container.appendChild(button);
 
-///////////////////////////////////////////////////////////
-fetch('YOUR_SERVER_PROXY_URL', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-        prompt: input.value,
-        model: 'text-davinci-002',
-        max_tokens: 10
-    })
-})
-    .then(response => response.json())
-    .then(data => {
-        if (data.choices && data.choices.length > 0) {
-            input.value = data.choices[0].text;
-        }
-    })
-    .catch(error => console.error(error));
+            button.addEventListener('click', () => {
+                chrome.storage.sync.get('apiKey', async ({ apiKey }) => {
+                    if (!apiKey) {
+                        console.error('No API key found');
+                        return;
+                    }
 
-
-
-/////////////////////////////////////////////
-const openaiEndpoint = 'https://api.openai.com/v1/engines/davinci-codex/completions';
-
-const callOpenaiApi = async (prompt, apiKey) => {
-    try {
-        const response = await fetch(openaiEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                prompt: prompt,
-                max_tokens: 50,
-                n: 1,
-                stop: null,
-                temperature: 0.8
-            })
+                    try {
+                        button.classList.add("loading");
+                        const correctedValue = await callOpenaiApi(input.value, apiKey);
+                        await appendMessage(input, correctedValue, () => button.classList.remove("loading"));
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+            });
         });
-
-        const data = await response.json();
-
-        if (data.choices && data.choices.length > 0) {
-            return data.choices[0].text;
-        } else {
-            throw new Error('No response from the API');
-        }
-    } catch (error) {
-        console.error(error);
     }
-};
 
-const prompt = 'Translate the following English text to French: "Hello, how are you?"';
-const apiKey = 'your_openai_api_key';
+    const appendMessage = async (input, message, callback) => {
+        input.value = '';
 
-callOpenaiApi(prompt, apiKey).then(response => {
-    console.log(response);
-});
+        // Typing effect
+        for (let i = 0; i < message.length; i++) {
+            const typingSpeed = getRandomTypingSpeed(10, 70);
+            await new Promise(resolve => setTimeout(resolve, typingSpeed));
+            input.value += message.charAt(i);
+        }
+        if (callback) {
+            callback();
+        }
+    }
+
+    const getRandomTypingSpeed = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    window.addEventListener('load', addOpenAIInputClass);
+
+})();

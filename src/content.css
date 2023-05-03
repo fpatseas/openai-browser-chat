@@ -1,0 +1,100 @@
+.openai-input {
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.openai-input-btn {
+    background-color: #11a683;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    display: none;
+    cursor: pointer;
+    border-radius: 3px;
+    position: absolute;
+}
+
+.openai-input-btn:hover {
+    background-color: #15c39a;
+    display: block;
+}
+
+.openai-input-container {
+    position: relative;
+    display: inherit;
+}
+
+.openai-input-container:hover .openai-input-btn,
+.openai-input:focus~.openai-input-btn,
+.openai-input:focus-visible~.openai-input-btn,
+.openai-input-btn.loading {
+    display: flex !important;
+    opacity: 1;
+}
+
+.openai-input-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    max-height: 30px;
+    height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.loading-dots {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.dot {
+    width: 5px;
+    height: 5px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    animation: dot-pulse 1.2s infinite;
+    margin: 0 2px;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.8s;
+}
+
+@keyframes dot-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.5);
+    }
+}
+
+.loading {
+    cursor: not-allowed;
+}
+
+.loading .icon {
+    display: none;
+}
+
+.loading .loading-dots {
+    display: flex !important;
+}

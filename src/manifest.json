@@ -4,8 +4,8 @@
     "version": "1.0",
     "description": "English correction plugin using OpenAI's API",
     "icons": {
-        "48": "icon48.png",
-        "128": "icon128.png"
+        "48": "images/icon-48.png",
+        "128": "images/icon-64.png"
     },
     "permissions": [
         "activeTab",
@@ -13,7 +13,7 @@
         "<all_urls>"
     ],
     "browser_action": {
-        "default_icon": "icon48.png",
+        "default_icon": "images/icon-48.png",
         "default_popup": "options.html"
     },
     "background": {
@@ -31,7 +31,7 @@
                 "content.js"
             ],
             "css": [
-                "style.css"
+                "content.css"
             ]
         }
     ],
