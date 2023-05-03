@@ -71,8 +71,14 @@ const addSpeechBubble = async (content, appendContent, callback) => {
 
     const bubble = document.createElement('div');
     bubble.classList.add('speech-bubble');
+
     if (appendContent) {
         await appendMessage(bubble, content, callback);
+
+        document.getElementById("chatBody").scrollTo({
+            top: this.scrollHeight,
+            behavior: 'smooth'
+        });
     }
     else {
         bubble.innerHTML = content;
@@ -82,13 +88,13 @@ const addSpeechBubble = async (content, appendContent, callback) => {
 };
 
 const appendMessage = async (input, message, callback) => {
-    input.text = '';
+    input.innerHTML = '';
 
     // Typing effect
     for (let i = 0; i < message.length; i++) {
         const typingSpeed = getRandomTypingSpeed(10, 70);
         await new Promise(resolve => setTimeout(resolve, typingSpeed));
-        input.text += message.charAt(i);
+        input.innerHTML += message.charAt(i);
     }
     if (callback) {
         callback();
