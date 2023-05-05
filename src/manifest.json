@@ -22,18 +22,6 @@
         ],
         "persistent": false
     },
-    "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "content.js"
-            ],
-            "css": [
-                "content.css"
-            ]
-        }
-    ],
+    "content_scripts": [],
     "options_page": "options.html"
 }

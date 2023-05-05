@@ -90,6 +90,10 @@ button {
     position: relative;
 }
 
+button:hover {
+    background-color: #5dc261;
+}
+
 .chat-message {
     display: flex;
     align-items: flex-start;
