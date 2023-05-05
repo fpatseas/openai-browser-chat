@@ -2,38 +2,61 @@
 
     const openaiEndpoint = 'https://api.openai.com/v1/edits';
 
+    const storageKeys = {
+        chatHistory: 'chatHistory',
+        chatSettings: 'chatSettings'
+    };
+
+    const chatSettings = {
+        apiKey: '',
+        model: 'text-davinci-edit-001',
+        instruction: 'Fix the grammar and spelling', // The instruction that tells the model how to edit the prompt.
+        editsToGenerate: 1, // How many edits to generate for the input and instruction.
+        temperature: 0.8 // What sampling temperature to use, between 0 (focused) and 2 (random).
+    };
+
     // Let's get ready to rumble
-    const initOptions = () => {
+    const initOptions = async () => {
 
         // load saved apiKey
-        chrome.storage.sync.get('apiKey', ({ apiKey }) => {
-            if (apiKey) {
-                document.getElementById('apiKey').value = apiKey;
+        await getStorageData(storageKeys.chatSettings, async (savedChatSettings) => {
+            if (!savedChatSettings) {
+                savedChatSettings = chatSettings;
+            }
+            for (const key in savedChatSettings) {
+                if (savedChatSettings.hasOwnProperty(key)) {
+                    document.getElementById(key).value = savedChatSettings[key] ?? '';
+                }
             }
         });
 
         // load saved chat history
-        chrome.storage.sync.get('chatHistory', async ({ chatHistory }) => {
-            if (chatHistory) {
+        await getStorageData(storageKeys.chatHistory, async (savedChatHistory) => {
+            if (savedChatHistory) {
                 const chatBody = document.getElementById("chatBody");
                 chatBody.innerHTML = '';
 
-                for (const message of chatHistory) {
+                for (const message of savedChatHistory) {
                     await addSpeechBubble(message);
                 }
             }
         });
 
-        addEventListeners();
+        await addEventListeners();
     };
 
-    const addEventListeners = () => {
+    const addEventListeners = async () => {
 
         // handle settings saveButton click
-        document.getElementById('saveButton').addEventListener('click', () => {
-            const apiKey = document.getElementById('apiKey').value;
-            chrome.storage.sync.set({ apiKey }, () => {
-                alert('API key saved!');
+        document.getElementById('saveButton').addEventListener('click', async () => {
+            var newChatSettings = {};
+
+            for (const key in chatSettings) {
+                newChatSettings[key] = document.getElementById(key).value;
+            }
+
+            await setStorageData({ [storageKeys.chatSettings]: newChatSettings }, () => {
+                alert('Chat settings saved!');
             });
         });
 
@@ -53,23 +76,23 @@
 
         // handle chatButton click
         const chatButton = document.getElementById("chatButton");
-        chatButton.addEventListener('click', () => {
-            chrome.storage.sync.get('apiKey', async ({ apiKey }) => {
-                if (!apiKey) {
+        chatButton.addEventListener('click', async () => {
+            await getStorageData(storageKeys.chatSettings, async (savedChatSettings) => {
+                if (!savedChatSettings || savedChatSettings.apiKey == '') {
                     console.error('No API key found');
                     return;
                 }
-                debugger;
+
                 const input = document.getElementById("chatInput");
 
                 try {
                     chatButton.classList.add("loading");
-                    await addSpeechBubble(input.value, addToHistory = true);
-                    const processedResponse = await callOpenaiApi(input.value, apiKey);
+                    await addSpeechBubble(input.value, false, true);
+                    const processedResponse = await callOpenaiApi(input.value, savedChatSettings);
                     await addSpeechBubble(
                         processedResponse,
-                        useTypingEffect = true,
-                        addToHistory = true,
+                        true,
+                        true,
                         () => chatButton.classList.remove("loading")
                     );
                 } catch (error) {
@@ -83,22 +106,49 @@
     };
 
     // Save messages in browser storage to maintain the state when the user switches tabs
-    const addMessageToChatHistory = (newMessage) => {
-        chrome.storage.sync.get('chatHistory', ({ chatHistory }) => {
-
-            if (!chatHistory) {
-                chatHistory = [];
+    const addMessageToChatHistory = async (newMessage) => {
+        await getStorageData(storageKeys.chatHistory, async (savedChatHistory) => {
+            if (!savedChatHistory) {
+                savedChatHistory = [];
             }
 
             // Add the new message to chatHistory
-            chatHistory.push(newMessage);
+            savedChatHistory.push(newMessage);
 
             // Save the updated chatHistory
-            chrome.storage.sync.set({ chatHistory }, () => {
+            await setStorageData({ [storageKeys.chatHistory]: savedChatHistory }, () => {
                 console.log('Updated chat history saved');
             });
         });
     };
+
+    const getStorageData = (key, callback) =>
+        new Promise((resolve, reject) =>
+            chrome.storage.sync.get(key, result => {
+                if (chrome.runtime.lastError) {
+                    reject(Error(chrome.runtime.lastError.message));
+                } else {
+                    resolve(result[key]);
+                    if (typeof callback === 'function') {
+                        callback(result[key]);
+                    }
+                }
+            })
+        );
+
+    const setStorageData = (data, callback) =>
+        new Promise((resolve, reject) =>
+            chrome.storage.sync.set(data, () => {
+                if (chrome.runtime.lastError) {
+                    reject(Error(chrome.runtime.lastError.message));
+                } else {
+                    resolve();
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
+                }
+            })
+        );
 
     // Tab switching handler
     const selectTab = (tabId) => {
@@ -111,16 +161,19 @@
 
         const chatContent = document.getElementById("chatContent");
         const settingsContent = document.getElementById("settingsContent");
-        const footer = document.querySelector("footer");
+        const chatForm = document.getElementById("chatForm");
+        const saveButton = document.getElementById("saveButton");
 
         if (tabId === "chatTab") {
             chatContent.classList.remove("hidden");
             settingsContent.classList.add("hidden");
-            footer.classList.remove("hidden");
+            chatForm.classList.remove("hidden");
+            saveButton.classList.add("hidden");
         } else {
             chatContent.classList.add("hidden");
             settingsContent.classList.remove("hidden");
-            footer.classList.add("hidden");
+            chatForm.classList.add("hidden");
+            saveButton.classList.remove("hidden");
         }
     };
 
@@ -138,23 +191,19 @@
         bubble.classList.add('speech-bubble');
 
         if (addToHistory) {
-            addMessageToChatHistory(content);
+            await addMessageToChatHistory(content);
         }
 
         if (useTypingEffect) {
             await appendMessage(bubble, content, callback);
-
-            document.getElementById("chatBody").scrollTo({
-                top: this.scrollHeight,
-                behavior: 'smooth'
-            });
-
-            return;
         }
 
         bubble.innerHTML = content;
         chatMessage.appendChild(bubble);
         document.getElementById("chatBody").appendChild(chatMessage);
+
+        const mainContainer = document.getElementById("mainContainer");
+        mainContainer.scrollTop = mainContainer.scrollHeight;
     };
 
     // Print out a chat message with random delay between letters
@@ -173,30 +222,26 @@
             input.innerHTML += message.charAt(i);
         }
 
-        chatMessage.appendChild(bubble);
-        document.getElementById("chatBody").appendChild(chatMessage);
-
         if (callback) {
             callback();
         }
     };
 
     // OpenAI API Client
-    const callOpenaiApi = async (prompt, apiKey) => {
+    const callOpenaiApi = async (prompt, chatSettings) => {
         try {
             const response = await fetch(openaiEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
+                    'Authorization': `Bearer ${chatSettings.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'text-davinci-edit-001',
+                    model: chatSettings.model,
                     input: prompt,
-                    n: 1,
-                    temperature: 0.8,
-                    top_p: 1,
-                    instruction: 'Fix the grammar and spelling, and if it\'s not English, please translate it'
+                    n: parseInt(chatSettings.editsToGenerate),
+                    temperature: parseFloat(chatSettings.temperature),
+                    instruction: chatSettings.instruction
                 })
             });
 

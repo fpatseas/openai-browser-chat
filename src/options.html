@@ -25,7 +25,14 @@
             <main class="scrollable">
                 <label for="apiKey">API Key:</label>
                 <input type="text" id="apiKey" />
-                <button id="saveButton">Save</button>
+                <label for="model">Model:</label>
+                <input type="text" id="model" />
+                <label for="instruction">Instruction:</label>
+                <input type="text" id="instruction" />
+                <label for="editsToGenerate">Edits to generate:</label>
+                <input type="text" id="editsToGenerate" />
+                <label for="temperature">Temperature (0 - 2):</label>
+                <input type="text" id="temperature" />
             </main>
         </div>
     </div>
@@ -41,6 +48,7 @@
                 </div>
             </button>
         </div>
+        <button id="saveButton" class="hidden">Save</button>
     </footer>
     <script src="options.js"></script>
 </body>
