@@ -5,7 +5,7 @@ This browser extension allows users to engage in natural language conversations 
 Designed for ease of use and extensive customization, users can enter their OpenAI API key and select their preferred language model and parameters. This enables them to tailor the conversational experience to their specific needs and use cases.
 
 ### Inspired by:
-* <a href="https://gpttools.com/comparisontool">GTP Comparison Tool by Andrew Mayne</a>
+* <a href="https://gpttools.com/comparisontool">GPT Comparison Tool by Andrew Mayne</a>
 * <a href="https://www.microsoft.com/en-us/edge/features/bing-chat">Bing Chat on Microsoft Edge</a>
 
 ### License
