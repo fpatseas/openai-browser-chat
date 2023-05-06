@@ -1,6 +1,12 @@
 # OpenAI Browser Chat Extension
 
-This is a browser extension that allows users to have natural language conversations with OpenAI's powerful language models. The extension provides a chat interface that allows users to enter prompts and receive responses in real-time, using OpenAI's API to generate contextually appropriate and engaging text.
+This browser extension allows users to engage in natural language conversations with OpenAI's powerful language models. The extension features a chat interface where users can input prompts and receive real-time responses, leveraging OpenAI's API to generate contextually relevant and engaging text.
 
-The extension is designed to be easy to use and highly customizable. Users can set their OpenAI API key and select their preferred language model and parameters, allowing them to fine-tune the conversation experience to their specific needs and use cases.
+Designed for ease of use and extensive customization, users can enter their OpenAI API key and select their preferred language model and parameters. This enables them to tailor the conversational experience to their specific needs and use cases.
 
+### Inspired by:
+* <a href="https://gpttools.com/comparisontool">GTP Comparison Tool by Andrew Mayne</a>
+* <a href="https://www.microsoft.com/en-us/edge/features/bing-chat">Bing Chat on Microsoft Edge</a>
+
+### License
+This repository is licensed under the MIT license. See the [LICENSE](LICENSE) file for more details.

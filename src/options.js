@@ -77,18 +77,39 @@
         // handle chatButton click
         const chatButton = document.getElementById("chatButton");
         chatButton.addEventListener('click', async () => {
+
+            if (chatButton.classList.contains("loading")) {
+                return;
+            }
+
             await getStorageData(storageKeys.chatSettings, async (savedChatSettings) => {
                 if (!savedChatSettings || savedChatSettings.apiKey == '') {
-                    console.error('No API key found');
+                    alert('No API key found');
                     return;
                 }
 
                 const input = document.getElementById("chatInput");
 
+                if (input.value == '') {
+                    alert('Please enter a message before submitting');
+                    return;
+                }
+
                 try {
+                    // show loading
                     chatButton.classList.add("loading");
+
+                    // add user input as speech bubble
                     await addSpeechBubble(input.value, false, true);
+
+                    // reset chatInput
+                    input.value = '';
+                    input.removeAttribute("style");
+
+                    // get response
                     const processedResponse = await callOpenaiApi(input.value, savedChatSettings);
+
+                    // add api response as speech bubble
                     await addSpeechBubble(
                         processedResponse,
                         true,
@@ -99,7 +120,9 @@
                     console.error(error);
                 }
                 finally {
-                    input.value = '';
+                    setTimeout(function () {
+                        chatButton.classList.remove("loading");
+                    }, 5000);
                 }
             });
         });
@@ -190,17 +213,20 @@
         const bubble = document.createElement('div');
         bubble.classList.add('speech-bubble');
 
+        chatMessage.appendChild(bubble);
+        document.getElementById("chatBody").appendChild(chatMessage);
+
         if (addToHistory) {
             await addMessageToChatHistory(content);
         }
 
         if (useTypingEffect) {
             await appendMessage(bubble, content, callback);
+
+            return;
         }
 
         bubble.innerHTML = content;
-        chatMessage.appendChild(bubble);
-        document.getElementById("chatBody").appendChild(chatMessage);
 
         const mainContainer = document.getElementById("mainContainer");
         mainContainer.scrollTop = mainContainer.scrollHeight;
@@ -215,11 +241,14 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         };
 
+        const mainContainer = document.getElementById("mainContainer");
+
         // Typing effect
         for (let i = 0; i < message.length; i++) {
             const typingSpeed = getRandomTypingSpeed(10, 70);
             await new Promise(resolve => setTimeout(resolve, typingSpeed));
             input.innerHTML += message.charAt(i);
+            mainContainer.scrollTop = mainContainer.scrollHeight;
         }
 
         if (callback) {
@@ -257,7 +286,7 @@
         }
     };
 
-    // Initialize the widget
+    // Initialize the extension
     window.addEventListener('load', initOptions);
 
 })();

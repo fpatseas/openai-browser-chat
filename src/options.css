@@ -10,6 +10,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow: hidden;
 }
 
 body {
@@ -79,7 +80,7 @@ label {
 }
 
 #mainContainer {
-    min-height: 300px;
+    min-height: 350px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -102,8 +103,8 @@ label {
     border-radius: 5px;
     padding: 0;
     height: auto;
-    max-height: 50vh;
-    min-height: 48px;
+    max-height: 150px;
+    min-height: 40px;
     outline: none;
     border: none;
 }

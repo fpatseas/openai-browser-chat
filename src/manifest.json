@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
-    "name": "AI English Corrector",
+    "name": "OpenAI Browser Chat",
     "version": "1.0",
-    "description": "English correction plugin using OpenAI's API",
+    "description": "Natural language AI chat extension, customizable, user-friendly",
     "icons": {
         "48": "images/icon-48.png",
         "128": "images/icon-64.png"
