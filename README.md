@@ -17,9 +17,12 @@ Designed for ease of use and extensive customization, users can enter their Open
 ![chat-settings](https://user-images.githubusercontent.com/3500933/236691893-2d329e6e-03dd-4516-ad0a-7144a4d16a96.JPG)
 ![chat](https://user-images.githubusercontent.com/3500933/236691907-454be26c-a63d-4223-a0ad-4ac27f3c636b.JPG)
 
-## Inspired by:
+## Inspired by
 * <a href="https://gpttools.com/comparisontool">GPT Comparison Tool by Andrew Mayne</a>
 * <a href="https://www.microsoft.com/en-us/edge/features/bing-chat">Bing Chat on Microsoft Edge</a>
+
+## Contributing
+If you would like to contribute, please feel free to fork the repository and submit a pull request.
 
 ## License
 This repository is licensed under the MIT license. See the [LICENSE](LICENSE) file for more details.
