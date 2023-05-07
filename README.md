@@ -14,8 +14,8 @@ Designed for ease of use and extensive customization, users can enter their Open
 7. Once you return to the Chat tab, you may now start a conversation.
 
 ## Screenshots
-[![Chat Settings](https://i.postimg.cc/PJNZWHV8/chat-settings.jpg)
-[![Chat](https://i.postimg.cc/gJg8LjsW/chat.jpg)
+![chat-settings](https://user-images.githubusercontent.com/3500933/236691893-2d329e6e-03dd-4516-ad0a-7144a4d16a96.JPG)
+![chat](https://user-images.githubusercontent.com/3500933/236691907-454be26c-a63d-4223-a0ad-4ac27f3c636b.JPG)
 
 ## Inspired by:
 * <a href="https://gpttools.com/comparisontool">GPT Comparison Tool by Andrew Mayne</a>
