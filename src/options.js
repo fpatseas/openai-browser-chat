@@ -10,7 +10,7 @@
     const chatSettings = {
         apiKey: '',
         model: 'text-davinci-edit-001',
-        instruction: 'Fix the grammar and spelling', // The instruction that tells the model how to edit the prompt.
+        instruction: 'Fix the spelling mistakes', // The instruction that tells the model how to edit the prompt.
         editsToGenerate: 1, // How many edits to generate for the input and instruction.
         temperature: 0.8 // What sampling temperature to use, between 0 (focused) and 2 (random).
     };
@@ -103,11 +103,12 @@
                     await addSpeechBubble(input.value, false, true);
 
                     // reset chatInput
+                    const prompt = input.value;
                     input.value = '';
                     input.removeAttribute("style");
 
                     // get response
-                    const processedResponse = await callOpenaiApi(input.value, savedChatSettings);
+                    const processedResponse = await callOpenaiApi(prompt, savedChatSettings);
 
                     // add api response as speech bubble
                     await addSpeechBubble(
